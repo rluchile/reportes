@@ -6,6 +6,7 @@ import datetime
 import os
 import base64
 
+st.set_page_config(page_title="Reporte de Servicio", layout="centered")
 # --- Control de acceso básico ---
 USER = "admin"
 PASS = "1234"
@@ -21,7 +22,6 @@ if not (username == USER and password == PASS):
     st.stop()
 
 # --- Configuración de página ---
-st.set_page_config(page_title="Reporte de Servicio", layout="centered")
 st.title("📋 Reporte de Servicio Técnico")
 
 # --- Formulario ---
