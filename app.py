@@ -5,8 +5,10 @@ from reportlab.pdfgen import canvas
 import datetime
 import os
 import base64
+import re
 
 st.set_page_config(page_title="Reporte de Servicio", layout="centered")
+
 # --- Control de acceso básico ---
 USER = "admin"
 PASS = "1234"
@@ -21,7 +23,7 @@ if not (username == USER and password == PASS):
     st.warning("Ingrese usuario y contraseña para continuar.")
     st.stop()
 
-# --- Configuración de página ---
+# --- Título ---
 st.title("📋 Reporte de Servicio Técnico")
 
 # --- Formulario ---
@@ -36,8 +38,8 @@ with st.form("formulario_servicio"):
         fecha_llamado = st.date_input("Fecha Llamado")
         fecha_servicio = st.date_input("Fecha Servicio")
     with col2:
-        hora_llamado = st.time_input("Hora Llamado", value=datetime.datetime.now().time().replace(second=0, microsecond=0))
-        hora_inicio = st.time_input("Hora Inicio", value=(datetime.datetime.now() + datetime.timedelta(hours=1)).time().replace(second=0, microsecond=0))
+        hora_llamado = st.text_input("Hora Llamado (HH:MM)", placeholder="09:00")
+        hora_inicio = st.text_input("Hora Inicio (HH:MM)", placeholder="12:00")
 
     modelo = st.text_input("Modelo")
     version = st.text_input("Versión Software")
@@ -53,6 +55,12 @@ with st.form("formulario_servicio"):
 
 # --- Procesar formulario ---
 if submitted:
+    # Validación de formato de hora
+    formato_hora = r'^[0-2][0-9]:[0-5][0-9]$'
+    if not re.match(formato_hora, hora_llamado) or not re.match(formato_hora, hora_inicio):
+        st.error("❌ Las horas deben estar en formato HH:MM (ej: 09:30).")
+        st.stop()
+
     datos = {
         "Cliente": cliente,
         "Dirección": direccion,
