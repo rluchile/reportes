@@ -192,7 +192,7 @@ with st.expander("📂 Ver historial de reportes"):
 
         st.markdown("---")
         selected_index = st.number_input("Selecciona el número de fila para reimprimir (0 a N-1):", min_value=0, max_value=len(historial)-1, step=1, key="reimpresion")
-        st.info(f"🧾 Cliente: {historial.iloc[selected_index]['Cliente']} | Fecha Servicio: {historial.iloc[selected_index]['Fecha servicio']}")-1, step=1)
+        st.info(f"🧾 Cliente: {historial.iloc[selected_index]['Cliente']} | Fecha Servicio: {historial.iloc[selected_index]['Fecha servicio']}")
         if st.button("🖨️ Generar PDF del reporte seleccionado"):
             datos = historial.iloc[selected_index].to_dict()
 
