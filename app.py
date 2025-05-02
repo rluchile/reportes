@@ -6,8 +6,9 @@ import datetime
 import os
 import base64
 
-USER = "RLU"
-PASS = "RLU5225"
+# --- Control de acceso básico ---
+USER = "admin"
+PASS = "1234"
 
 with st.sidebar:
     st.header("🔐 Iniciar sesión")
@@ -19,10 +20,11 @@ if not (username == USER and password == PASS):
     st.warning("Ingrese usuario y contraseña para continuar.")
     st.stop()
 
-
+# --- Configuración de página ---
 st.set_page_config(page_title="Reporte de Servicio", layout="centered")
 st.title("📋 Reporte de Servicio Técnico")
 
+# --- Formulario ---
 with st.form("formulario_servicio"):
     cliente = st.text_input("Cliente")
     direccion = st.text_input("Dirección")
@@ -49,6 +51,7 @@ with st.form("formulario_servicio"):
 
     submitted = st.form_submit_button("Guardar reporte")
 
+# --- Procesar formulario ---
 if submitted:
     datos = {
         "Cliente": cliente,
@@ -69,26 +72,17 @@ if submitted:
         "Comentarios": comentarios
     }
 
-    with st.expander("📂 Ver historial de reportes"):
-    if os.path.exists("historial_reportes.csv"):
-        historial = pd.read_csv("historial_reportes.csv")
-        st.dataframe(historial)
-    else:
-        st.info("Aún no hay reportes guardados.")
-
-    # Guardar historial CSV
+    # Guardar en CSV
     df = pd.DataFrame([datos])
     csv_path = "historial_reportes.csv"
     df.to_csv(csv_path, mode='a', header=not os.path.exists(csv_path), index=False)
 
-    # Crear PDF estructurado
+    # Generar PDF
     timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
     pdf_filename = f"reporte_servicio_{timestamp}.pdf"
     c = canvas.Canvas(pdf_filename, pagesize=letter)
-
     c.setFont("Helvetica-Bold", 14)
     c.drawString(200, 770, "REPORTE DE SERVICIO")
-
     c.setFont("Helvetica", 10)
     y = 740
 
@@ -97,7 +91,6 @@ if submitted:
         canvas.drawString(150, y_pos, str(value))
         return y_pos - 18
 
-    # Datos Cliente
     c.setFont("Helvetica-Bold", 12)
     c.drawString(40, y, "Datos del Cliente")
     y -= 15
@@ -107,7 +100,6 @@ if submitted:
     y = draw_field(c, "Contacto", datos["Contacto"], y)
     y = draw_field(c, "Técnico Encargado", datos["Técnico"], y)
 
-    # Tiempos
     y -= 10
     c.setFont("Helvetica-Bold", 12)
     c.drawString(40, y, "Tiempos del Servicio")
@@ -118,7 +110,6 @@ if submitted:
     y = draw_field(c, "Fecha servicio", datos["Fecha servicio"], y)
     y = draw_field(c, "Hora inicio", datos["Hora inicio"], y)
 
-    # Equipo
     y -= 10
     c.setFont("Helvetica-Bold", 12)
     c.drawString(40, y, "Datos del Equipo")
@@ -129,7 +120,6 @@ if submitted:
     y = draw_field(c, "Serie", datos["Serie"], y)
     y = draw_field(c, "Horas uso", datos["Horas uso"], y)
 
-    # Problema y acciones
     y -= 10
     c.setFont("Helvetica-Bold", 12)
     c.drawString(40, y, "Detalle del Problema")
@@ -148,7 +138,7 @@ if submitted:
     c.showPage()
     c.save()
 
-    # Descargar PDF desde navegador
+    # Botón de descarga
     with open(pdf_filename, "rb") as f:
         pdf_bytes = f.read()
         b64 = base64.b64encode(pdf_bytes).decode()
@@ -156,3 +146,11 @@ if submitted:
         st.markdown(href, unsafe_allow_html=True)
 
     st.success("✅ Reporte guardado correctamente.")
+
+# --- Mostrar historial dentro de la app ---
+with st.expander("📂 Ver historial de reportes"):
+    if os.path.exists("historial_reportes.csv"):
+        historial = pd.read_csv("historial_reportes.csv")
+        st.dataframe(historial)
+    else:
+        st.info("Aún no hay reportes guardados.")
