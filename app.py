@@ -5,11 +5,10 @@ from reportlab.pdfgen import canvas
 import datetime
 import os
 import base64
-import re
 
 st.set_page_config(page_title="Reporte de Servicio", layout="centered")
 
-# --- Control de acceso básico ---
+# --- Control de acceso ---
 USER = "admin"
 PASS = "1234"
 
@@ -23,7 +22,6 @@ if not (username == USER and password == PASS):
     st.warning("Ingrese usuario y contraseña para continuar.")
     st.stop()
 
-# --- Título ---
 st.title("📋 Reporte de Servicio Técnico")
 
 # --- Formulario ---
@@ -35,24 +33,23 @@ with st.form("formulario_servicio"):
 
     col1, col2 = st.columns(2)
     with col1:
-        fecha_llamado = st.date_input("Fecha Llamado")
-        fecha_servicio = st.date_input("Fecha Servicio")
-    with col2:
         fecha_llamado = st.date_input("Fecha Llamado", value=datetime.date.today())
-        hl1, hl2 = st.columns([1, 1])
-    with hl1:
-        hora_llamado_hora = st.selectbox("Hora", list(range(0, 24)), index=9, key="hl_hora")
-    with hl2:
-        hora_llamado_minuto = st.selectbox("Min", list(range(0, 60, 5)), index=0, key="hl_min")
         fecha_servicio = st.date_input("Fecha Servicio", value=datetime.date.today())
-        hi1, hi2 = st.columns([1, 1])
-    with hi1:
-        hora_inicio_hora = st.selectbox("Hora", list(range(0, 24)), index=12, key="hi_hora")
-    with hi2:
-        hora_inicio_minuto = st.selectbox("Min", list(range(0, 60, 5)), index=0, key="hi_min")
+    with col2:
+        hl1, hl2 = st.columns([1, 1])
+        with hl1:
+            hora_llamado_hora = st.selectbox("Hora", list(range(0, 24)), index=9, key="hl_hora")
+        with hl2:
+            hora_llamado_minuto = st.selectbox("Min", list(range(0, 60, 5)), index=0, key="hl_min")
 
-        hora_llamado = f"{hora_llamado_hora:02d}:{hora_llamado_minuto:02d}"
-        hora_inicio = f"{hora_inicio_hora:02d}:{hora_inicio_minuto:02d}"
+        hi1, hi2 = st.columns([1, 1])
+        with hi1:
+            hora_inicio_hora = st.selectbox("Hora", list(range(0, 24)), index=12, key="hi_hora")
+        with hi2:
+            hora_inicio_minuto = st.selectbox("Min", list(range(0, 60, 5)), index=0, key="hi_min")
+
+    hora_llamado = f"{hora_llamado_hora:02d}:{hora_llamado_minuto:02d}"
+    hora_inicio = f"{hora_inicio_hora:02d}:{hora_inicio_minuto:02d}"
 
     modelo = st.text_input("Modelo")
     version = st.text_input("Versión Software")
@@ -66,14 +63,7 @@ with st.form("formulario_servicio"):
 
     submitted = st.form_submit_button("Guardar reporte")
 
-# --- Procesar formulario ---
 if submitted:
-    # Validación de formato de hora
-    formato_hora = r'^[0-2][0-9]:[0-5][0-9]$'
-    if not re.match(formato_hora, hora_llamado) or not re.match(formato_hora, hora_inicio):
-        st.error("❌ Las horas deben estar en formato HH:MM (ej: 09:30).")
-        st.stop()
-
     datos = {
         "Cliente": cliente,
         "Dirección": direccion,
@@ -93,12 +83,10 @@ if submitted:
         "Comentarios": comentarios
     }
 
-    # Guardar en CSV
     df = pd.DataFrame([datos])
     csv_path = "historial_reportes.csv"
     df.to_csv(csv_path, mode='a', header=not os.path.exists(csv_path), index=False)
 
-    # Generar PDF
     timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
     pdf_filename = f"reporte_servicio_{timestamp}.pdf"
     c = canvas.Canvas(pdf_filename, pagesize=letter)
@@ -116,42 +104,34 @@ if submitted:
     c.drawString(40, y, "Datos del Cliente")
     y -= 15
     c.setFont("Helvetica", 10)
-    y = draw_field(c, "Cliente", datos["Cliente"], y)
-    y = draw_field(c, "Dirección", datos["Dirección"], y)
-    y = draw_field(c, "Contacto", datos["Contacto"], y)
-    y = draw_field(c, "Técnico Encargado", datos["Técnico"], y)
+    for campo in ["Cliente", "Dirección", "Contacto", "Técnico"]:
+        y = draw_field(c, campo, datos[campo], y)
 
     y -= 10
     c.setFont("Helvetica-Bold", 12)
     c.drawString(40, y, "Tiempos del Servicio")
     y -= 15
     c.setFont("Helvetica", 10)
-    y = draw_field(c, "Fecha llamado", datos["Fecha llamado"], y)
-    y = draw_field(c, "Hora llamado", datos["Hora llamado"], y)
-    y = draw_field(c, "Fecha servicio", datos["Fecha servicio"], y)
-    y = draw_field(c, "Hora inicio", datos["Hora inicio"], y)
+    for campo in ["Fecha llamado", "Hora llamado", "Fecha servicio", "Hora inicio"]:
+        y = draw_field(c, campo, datos[campo], y)
 
     y -= 10
     c.setFont("Helvetica-Bold", 12)
     c.drawString(40, y, "Datos del Equipo")
     y -= 15
     c.setFont("Helvetica", 10)
-    y = draw_field(c, "Modelo", datos["Modelo"], y)
-    y = draw_field(c, "Versión", datos["Versión"], y)
-    y = draw_field(c, "Serie", datos["Serie"], y)
-    y = draw_field(c, "Horas uso", datos["Horas uso"], y)
+    for campo in ["Modelo", "Versión", "Serie", "Horas uso"]:
+        y = draw_field(c, campo, datos[campo], y)
 
     y -= 10
     c.setFont("Helvetica-Bold", 12)
     c.drawString(40, y, "Detalle del Problema")
     y -= 15
     c.setFont("Helvetica", 10)
-
     for campo in ["Problema", "Falla", "Acciones", "Comentarios"]:
         c.drawString(40, y, f"{campo}:")
         y -= 15
-        texto = datos[campo]
-        for linea in texto.splitlines():
+        for linea in datos[campo].splitlines():
             c.drawString(60, y, linea.strip())
             y -= 13
         y -= 10
@@ -159,7 +139,6 @@ if submitted:
     c.showPage()
     c.save()
 
-    # Botón de descarga
     with open(pdf_filename, "rb") as f:
         pdf_bytes = f.read()
         b64 = base64.b64encode(pdf_bytes).decode()
@@ -168,7 +147,7 @@ if submitted:
 
     st.success("✅ Reporte guardado correctamente.")
 
-# --- Mostrar historial dentro de la app ---
+# --- Historial de reportes ---
 with st.expander("📂 Ver historial de reportes"):
     if os.path.exists("historial_reportes.csv"):
         historial = pd.read_csv("historial_reportes.csv")
