@@ -97,43 +97,51 @@ if submitted:
 
     def draw_field(canvas, label, value, y_pos):
         canvas.drawString(40, y_pos, f"{label}:")
+        canvas.line(140, y_pos - 2, 580, y_pos - 2)
         canvas.drawString(150, y_pos, str(value))
-        return y_pos - 18
+        return y_pos - 20
 
-    c.setFont("Helvetica-Bold", 12)
-    c.drawString(40, y, "Datos del Cliente")
-    y -= 15
+    def draw_section_title(canvas, title, y_pos):
+        canvas.setStrokeGray(0.7)
+        canvas.setLineWidth(0.5)
+        canvas.line(30, y_pos + 5, 580, y_pos + 5)
+        canvas.setFont("Helvetica-Bold", 12)
+        canvas.drawString(40, y_pos, title)
+        return y_pos - 15
+
+    y = draw_section_title(c, "Datos del Cliente", y)
     c.setFont("Helvetica", 10)
     for campo in ["Cliente", "Dirección", "Contacto", "Técnico"]:
+        c.setStrokeGray(0.85)
+        c.setLineWidth(0.3)
         y = draw_field(c, campo, datos[campo], y)
 
-    y -= 10
-    c.setFont("Helvetica-Bold", 12)
-    c.drawString(40, y, "Tiempos del Servicio")
-    y -= 15
+    y = draw_section_title(c, "Tiempos del Servicio", y)
     c.setFont("Helvetica", 10)
     for campo in ["Fecha llamado", "Hora llamado", "Fecha servicio", "Hora inicio"]:
+        c.setStrokeGray(0.85)
+        c.setLineWidth(0.3)
         y = draw_field(c, campo, datos[campo], y)
 
-    y -= 10
-    c.setFont("Helvetica-Bold", 12)
-    c.drawString(40, y, "Datos del Equipo")
-    y -= 15
+    y = draw_section_title(c, "Datos del Equipo", y)
     c.setFont("Helvetica", 10)
     for campo in ["Modelo", "Versión", "Serie", "Horas uso"]:
+        c.setStrokeGray(0.85)
+        c.setLineWidth(0.3)
         y = draw_field(c, campo, datos[campo], y)
 
-    y -= 10
-    c.setFont("Helvetica-Bold", 12)
-    c.drawString(40, y, "Detalle del Problema")
-    y -= 15
+    y = draw_section_title(c, "Detalle del Problema", y)
     c.setFont("Helvetica", 10)
     for campo in ["Problema", "Falla", "Acciones", "Comentarios"]:
         c.drawString(40, y, f"{campo}:")
         y -= 15
+        box_top = y + 5
         for linea in datos[campo].splitlines():
             c.drawString(60, y, linea.strip())
             y -= 13
+        c.setStrokeGray(0.8)
+        c.setLineWidth(0.3)
+        c.rect(38, y - 3, 540, box_top - y + 3)
         y -= 10
 
     c.showPage()
