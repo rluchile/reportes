@@ -55,12 +55,12 @@ if submitted:
         "Comentarios": comentarios
     }
 
-    # Guardar en historial CSV
+    # Guardar historial CSV
     df = pd.DataFrame([datos])
     csv_path = "historial_reportes.csv"
     df.to_csv(csv_path, mode='a', header=not os.path.exists(csv_path), index=False)
 
-      # Generar PDF (estilo estructurado, sin usar nonlocal)
+    # Crear PDF estructurado
     timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
     pdf_filename = f"reporte_servicio_{timestamp}.pdf"
     c = canvas.Canvas(pdf_filename, pagesize=letter)
@@ -69,15 +69,14 @@ if submitted:
     c.drawString(200, 770, "REPORTE DE SERVICIO")
 
     c.setFont("Helvetica", 10)
+    y = 740
 
-    y = 740  # altura inicial
-
-    def draw_field(c, label, value, y_pos):
-        c.drawString(40, y_pos, f"{label}:")
-        c.drawString(150, y_pos, str(value))
+    def draw_field(canvas, label, value, y_pos):
+        canvas.drawString(40, y_pos, f"{label}:")
+        canvas.drawString(150, y_pos, str(value))
         return y_pos - 18
 
-    # Sección 1 - Datos generales
+    # Datos Cliente
     c.setFont("Helvetica-Bold", 12)
     c.drawString(40, y, "Datos del Cliente")
     y -= 15
@@ -87,6 +86,7 @@ if submitted:
     y = draw_field(c, "Contacto", datos["Contacto"], y)
     y = draw_field(c, "Técnico Encargado", datos["Técnico"], y)
 
+    # Tiempos
     y -= 10
     c.setFont("Helvetica-Bold", 12)
     c.drawString(40, y, "Tiempos del Servicio")
@@ -97,6 +97,7 @@ if submitted:
     y = draw_field(c, "Fecha servicio", datos["Fecha servicio"], y)
     y = draw_field(c, "Hora inicio", datos["Hora inicio"], y)
 
+    # Equipo
     y -= 10
     c.setFont("Helvetica-Bold", 12)
     c.drawString(40, y, "Datos del Equipo")
@@ -107,7 +108,7 @@ if submitted:
     y = draw_field(c, "Serie", datos["Serie"], y)
     y = draw_field(c, "Horas uso", datos["Horas uso"], y)
 
-    # Sección grande (multilínea)
+    # Problema y acciones
     y -= 10
     c.setFont("Helvetica-Bold", 12)
     c.drawString(40, y, "Detalle del Problema")
@@ -125,3 +126,12 @@ if submitted:
 
     c.showPage()
     c.save()
+
+    # Descargar PDF desde navegador
+    with open(pdf_filename, "rb") as f:
+        pdf_bytes = f.read()
+        b64 = base64.b64encode(pdf_bytes).decode()
+        href = f'<a href="data:application/pdf;base64,{b64}" download="{pdf_filename}">📥 Descargar PDF</a>'
+        st.markdown(href, unsafe_allow_html=True)
+
+    st.success("✅ Reporte guardado correctamente.")
