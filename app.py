@@ -4,6 +4,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 import datetime
 import os
+import base64
 
 st.set_page_config(page_title="Reporte de Servicio", layout="centered")
 st.title("📋 Reporte de Servicio Técnico")
@@ -59,7 +60,7 @@ if submitted:
     csv_path = "historial_reportes.csv"
     df.to_csv(csv_path, mode='a', header=not os.path.exists(csv_path), index=False)
 
-    # Exportar a PDF
+    # Generar PDF
     timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
     pdf_filename = f"reporte_servicio_{timestamp}.pdf"
     c = canvas.Canvas(pdf_filename, pagesize=letter)
@@ -76,6 +77,13 @@ if submitted:
 
     c.save()
 
-    # Mostrar resultados
+    # Mostrar mensaje
     st.success("✅ Reporte guardado correctamente.")
     st.info(f"📄 PDF generado: `{pdf_filename}`")
+
+    # Botón para descargar PDF
+    with open(pdf_filename, "rb") as f:
+        pdf_bytes = f.read()
+        b64 = base64.b64encode(pdf_bytes).decode()
+        href = f'<a href="data:application/pdf;base64,{b64}" download="{pdf_filename}">📥 Descargar PDF</a>'
+        st.markdown(href, unsafe_allow_html=True)
