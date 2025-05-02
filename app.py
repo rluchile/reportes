@@ -132,24 +132,24 @@ if submitted:
 
     y = draw_section_title(c, "Detalle del Problema", y)
     c.setFont("Helvetica", 10)
-   for campo in ["Problema", "Falla", "Acciones", "Comentarios"]:
-    c.drawString(40, y, f"{campo}:")
-    y -= 15
-    text_lines = datos[campo].splitlines()
-    box_top = y + 5
-    box_bottom = y - (13 * len(text_lines))
-    
-    # Dibuja la caja primero (para que no tape texto)
-    c.setStrokeGray(0.8)
-    c.setLineWidth(0.3)
-    c.rect(38, box_bottom - 5, 540, box_top - box_bottom + 5)
+    for campo in ["Problema", "Falla", "Acciones", "Comentarios"]:
+        c.drawString(40, y, f"{campo}:")
+        y -= 15
+        text_lines = datos[campo].splitlines()
+        box_top = y + 5
+        box_bottom = y - (13 * len(text_lines))
 
-    # Luego dibuja el texto
-    for line in text_lines:
-        c.drawString(60, y, line.strip())
-        y -= 13
+        # Dibuja la caja primero
+        c.setStrokeGray(0.8)
+        c.setLineWidth(0.3)
+        c.rect(38, box_bottom - 5, 540, box_top - box_bottom + 5)
 
-    y -= 10
+        # Luego el contenido
+        for line in text_lines:
+            c.drawString(60, y, line.strip())
+            y -= 13
+
+        y -= 10
 
     c.showPage()
     c.save()
