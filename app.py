@@ -60,30 +60,68 @@ if submitted:
     csv_path = "historial_reportes.csv"
     df.to_csv(csv_path, mode='a', header=not os.path.exists(csv_path), index=False)
 
-    # Generar PDF
+    # Generar PDF (estilo estructurado)
     timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
     pdf_filename = f"reporte_servicio_{timestamp}.pdf"
     c = canvas.Canvas(pdf_filename, pagesize=letter)
+    c.setFont("Helvetica-Bold", 14)
+    c.drawString(200, 770, "REPORTE DE SERVICIO")
+
     c.setFont("Helvetica", 10)
 
-    y = 750
-    for campo, valor in datos.items():
-        c.drawString(40, y, f"{campo}: {valor}")
-        y -= 20
-        if y < 40:
-            c.showPage()
-            c.setFont("Helvetica", 10)
-            y = 750
+    y = 740
+    def draw_field(label, value):
+        nonlocal y
+        c.drawString(40, y, f"{label}:")
+        c.drawString(150, y, str(value))
+        y -= 18
 
+    # Sección 1 - Datos generales
+    y -= 10
+    c.setFont("Helvetica-Bold", 12)
+    c.drawString(40, y, "Datos del Cliente")
+    y -= 15
+    c.setFont("Helvetica", 10)
+    draw_field("Cliente", datos["Cliente"])
+    draw_field("Dirección", datos["Dirección"])
+    draw_field("Contacto", datos["Contacto"])
+    draw_field("Técnico Encargado", datos["Técnico"])
+
+    y -= 10
+    c.setFont("Helvetica-Bold", 12)
+    c.drawString(40, y, "Tiempos del Servicio")
+    y -= 15
+    c.setFont("Helvetica", 10)
+    draw_field("Fecha llamado", datos["Fecha llamado"])
+    draw_field("Hora llamado", datos["Hora llamado"])
+    draw_field("Fecha servicio", datos["Fecha servicio"])
+    draw_field("Hora inicio", datos["Hora inicio"])
+
+    y -= 10
+    c.setFont("Helvetica-Bold", 12)
+    c.drawString(40, y, "Datos del Equipo")
+    y -= 15
+    c.setFont("Helvetica", 10)
+    draw_field("Modelo", datos["Modelo"])
+    draw_field("Versión", datos["Versión"])
+    draw_field("Serie", datos["Serie"])
+    draw_field("Horas uso", datos["Horas uso"])
+
+    # Sección grande (multilínea)
+    y -= 10
+    c.setFont("Helvetica-Bold", 12)
+    c.drawString(40, y, "Detalle del Problema")
+    y -= 15
+    c.setFont("Helvetica", 10)
+    text_fields = ["Problema", "Falla", "Acciones", "Comentarios"]
+    for field in text_fields:
+        c.drawString(40, y, f"{field}:")
+        y -= 15
+        text = datos[field]
+        for line in text.splitlines():
+            c.drawString(60, y, line.strip())
+            y -= 13
+        y -= 10
+
+    c.showPage()
     c.save()
-
-    # Mostrar mensaje
-    st.success("✅ Reporte guardado correctamente.")
-    st.info(f"📄 PDF generado: `{pdf_filename}`")
-
-    # Botón para descargar PDF
-    with open(pdf_filename, "rb") as f:
-        pdf_bytes = f.read()
-        b64 = base64.b64encode(pdf_bytes).decode()
-        href = f'<a href="data:application/pdf;base64,{b64}" download="{pdf_filename}">📥 Descargar PDF</a>'
-        st.markdown(href, unsafe_allow_html=True)
