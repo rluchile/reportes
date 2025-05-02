@@ -6,6 +6,20 @@ import datetime
 import os
 import base64
 
+USER = "RLU"
+PASS = "RLU5225"
+
+with st.sidebar:
+    st.header("🔐 Iniciar sesión")
+    username = st.text_input("Usuario")
+    password = st.text_input("Contraseña", type="password")
+    login = st.button("Ingresar")
+
+if not (username == USER and password == PASS):
+    st.warning("Ingrese usuario y contraseña para continuar.")
+    st.stop()
+
+
 st.set_page_config(page_title="Reporte de Servicio", layout="centered")
 st.title("📋 Reporte de Servicio Técnico")
 
@@ -54,6 +68,13 @@ if submitted:
         "Acciones": acciones,
         "Comentarios": comentarios
     }
+
+    with st.expander("📂 Ver historial de reportes"):
+    if os.path.exists("historial_reportes.csv"):
+        historial = pd.read_csv("historial_reportes.csv")
+        st.dataframe(historial)
+    else:
+        st.info("Aún no hay reportes guardados.")
 
     # Guardar historial CSV
     df = pd.DataFrame([datos])
