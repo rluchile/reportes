@@ -138,16 +138,23 @@ if submitted:
     for campo in ["Problema", "Falla", "Acciones", "Comentarios"]:
         c.setFont("Helvetica-Bold", 10)
         c.setFillGray(0.9)
-        c.rect(38, y - 3, 540, 18, fill=1, stroke=0)
+        c.rect(30, y - 3, 550, 16, fill=1, stroke=0)
         c.setFillColorRGB(0, 0, 0)
         c.drawString(40, y, f"{campo}:")
         y -= 20
 
         text_lines = datos[campo].splitlines()
+        box_top = y + 5
+        box_bottom = y - (13 * len(text_lines))
+
+        c.setStrokeGray(0.8)
+        c.setLineWidth(0.3)
+        c.rect(38, box_bottom - 5, 540, box_top - box_bottom + 5)
+
         for line in text_lines:
             c.drawString(60, y, line.strip())
             y -= 13
-        y -= 10
+        y -= 15
 
     c.showPage()
     c.save()
