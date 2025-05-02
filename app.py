@@ -37,23 +37,19 @@ with st.form("formulario_servicio"):
     with col1:
         fecha_llamado = st.date_input("Fecha Llamado")
         fecha_servicio = st.date_input("Fecha Servicio")
-  
-   with col2:
-    fecha_llamado = st.date_input("Fecha Llamado", value=datetime.date.today())
-    hl1, hl2 = st.columns([1, 1])
+    with col2:
+        fecha_llamado = st.date_input("Fecha Llamado", value=datetime.date.today())
+        hl1, hl2 = st.columns([1, 1])
     with hl1:
         hora_llamado_hora = st.selectbox("Hora", list(range(0, 24)), index=9, key="hl_hora")
     with hl2:
         hora_llamado_minuto = st.selectbox("Min", list(range(0, 60, 5)), index=0, key="hl_min")
-
-    fecha_servicio = st.date_input("Fecha Servicio", value=datetime.date.today())
-    hi1, hi2 = st.columns([1, 1])
+        fecha_servicio = st.date_input("Fecha Servicio", value=datetime.date.today())
+        hi1, hi2 = st.columns([1, 1])
     with hi1:
         hora_inicio_hora = st.selectbox("Hora", list(range(0, 24)), index=12, key="hi_hora")
     with hi2:
         hora_inicio_minuto = st.selectbox("Min", list(range(0, 60, 5)), index=0, key="hi_min")
-
-
 
         hora_llamado = f"{hora_llamado_hora:02d}:{hora_llamado_minuto:02d}"
         hora_inicio = f"{hora_inicio_hora:02d}:{hora_inicio_minuto:02d}"
