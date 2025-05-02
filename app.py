@@ -176,7 +176,23 @@ with st.expander("📂 Ver historial de reportes"):
         st.dataframe(historial)
 
         st.markdown("---")
-        selected_index = st.number_input("Selecciona el número de fila para reimprimir (0 a N-1):", min_value=0, max_value=len(historial)-1, step=1)
+        fila_borrar = st.number_input("Selecciona el número de fila para eliminar (0 a N-1):", min_value=0, max_value=len(historial)-1, step=1, key="fila_borrar")
+        if st.button("🗑️ Eliminar fila seleccionada"):
+            historial.drop(index=fila_borrar, inplace=True)
+            historial.to_csv("historial_reportes.csv", index=False)
+            st.success("✅ Fila eliminada correctamente. Recarga la página para ver los cambios.")
+
+        confirmar_borrado = st.checkbox("⚠️ Confirmo que deseo eliminar todo el historial")
+        if st.button("🗑️ Borrar todos los registros del historial"):
+            if confirmar_borrado:
+                os.remove("historial_reportes.csv")
+                st.warning("✅ Historial eliminado. Actualiza la página para ver los cambios.")
+            else:
+                st.error("Debes confirmar que deseas eliminar el historial.")
+
+        st.markdown("---")
+        selected_index = st.number_input("Selecciona el número de fila para reimprimir (0 a N-1):", min_value=0, max_value=len(historial)-1, step=1, key="reimpresion")
+        st.info(f"🧾 Cliente: {historial.iloc[selected_index]['Cliente']} | Fecha Servicio: {historial.iloc[selected_index]['Fecha servicio']}")-1, step=1)
         if st.button("🖨️ Generar PDF del reporte seleccionado"):
             datos = historial.iloc[selected_index].to_dict()
 
