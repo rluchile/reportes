@@ -90,6 +90,9 @@ if submitted:
     timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
     pdf_filename = f"reporte_servicio_{timestamp}.pdf"
     c = canvas.Canvas(pdf_filename, pagesize=letter)
+    c.setStrokeGray(0.7)
+    c.setLineWidth(1)
+    c.rect(25, 25, 560, 740, stroke=1, fill=0)  # marco decorativo
     c.setFont("Helvetica-Bold", 14)
     c.drawString(200, 770, "REPORTE DE SERVICIO")
     c.setFont("Helvetica", 10)
@@ -102,12 +105,12 @@ if submitted:
         return y_pos - 20
 
     def draw_section_title(canvas, title, y_pos):
-        canvas.setStrokeGray(0.7)
-        canvas.setLineWidth(0.5)
-        canvas.line(30, y_pos + 5, 580, y_pos + 5)
+        canvas.setFillGray(0.9)
+        canvas.rect(30, y_pos - 2, 550, 18, fill=1, stroke=0)
+        canvas.setFillColorRGB(0, 0, 0)
         canvas.setFont("Helvetica-Bold", 12)
         canvas.drawString(40, y_pos, title)
-        return y_pos - 15
+        return y_pos - 20
 
     y = draw_section_title(c, "Datos del Cliente", y)
     c.setFont("Helvetica", 10)
@@ -133,22 +136,17 @@ if submitted:
     y = draw_section_title(c, "Detalle del Problema", y)
     c.setFont("Helvetica", 10)
     for campo in ["Problema", "Falla", "Acciones", "Comentarios"]:
+        c.setFont("Helvetica-Bold", 10)
+        c.setFillGray(0.9)
+        c.rect(38, y - 3, 540, 18, fill=1, stroke=0)
+        c.setFillColorRGB(0, 0, 0)
         c.drawString(40, y, f"{campo}:")
-        y -= 15
+        y -= 20
+
         text_lines = datos[campo].splitlines()
-        box_top = y + 5
-        box_bottom = y - (13 * len(text_lines))
-
-        # Dibuja la caja primero
-        c.setStrokeGray(0.8)
-        c.setLineWidth(0.3)
-        c.rect(38, box_bottom - 5, 540, box_top - box_bottom + 5)
-
-        # Luego el contenido
         for line in text_lines:
             c.drawString(60, y, line.strip())
             y -= 13
-
         y -= 10
 
     c.showPage()
