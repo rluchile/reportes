@@ -36,8 +36,8 @@ with st.form("formulario_servicio"):
         fecha_llamado = st.date_input("Fecha Llamado")
         fecha_servicio = st.date_input("Fecha Servicio")
     with col2:
-        hora_llamado = st.text_input("Hora Llamado")
-        hora_inicio = st.text_input("Hora Inicio")
+        hora_llamado = st.time_input("Hora Llamado")
+        hora_inicio = st.time_input("Hora Inicio")
 
     modelo = st.text_input("Modelo")
     version = st.text_input("Versión Software")
