@@ -38,8 +38,13 @@ with st.form("formulario_servicio"):
         fecha_llamado = st.date_input("Fecha Llamado")
         fecha_servicio = st.date_input("Fecha Servicio")
     with col2:
-        hora_llamado = st.text_input("Hora Llamado (HH:MM)", placeholder="09:00")
-        hora_inicio = st.text_input("Hora Inicio (HH:MM)", placeholder="12:00")
+        hora_llamado_hora = st.selectbox("Hora Llamado (hora)", list(range(0, 24)), index=9)
+        hora_llamado_minuto = st.selectbox("Hora Llamado (min)", list(range(0, 60, 5)), index=0)
+        hora_inicio_hora = st.selectbox("Hora Inicio (hora)", list(range(0, 24)), index=12)
+        hora_inicio_minuto = st.selectbox("Hora Inicio (min)", list(range(0, 60, 5)), index=0)
+
+        hora_llamado = f"{hora_llamado_hora:02d}:{hora_llamado_minuto:02d}"
+        hora_inicio = f"{hora_inicio_hora:02d}:{hora_inicio_minuto:02d}"
 
     modelo = st.text_input("Modelo")
     version = st.text_input("Versión Software")
