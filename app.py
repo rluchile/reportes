@@ -144,17 +144,19 @@ if submitted:
         y -= 20
 
         text_lines = datos[campo].splitlines()
-        box_top = y + 5
-        box_bottom = y - (13 * len(text_lines))
-
-        c.setStrokeGray(0.8)
-        c.setLineWidth(0.3)
-        c.rect(38, box_bottom - 5, 540, box_top - box_bottom + 5)
-
+        c.setFont("Helvetica", 10)
         for line in text_lines:
             c.drawString(60, y, line.strip())
             y -= 13
-        y -= 15
+        y -= 10
+
+        # Firmas
+    y = 60
+    c.setFont("Helvetica", 10)
+    c.drawString(50, y, "Realizado por:")
+    c.line(130, y, 250, y)
+    c.drawString(400, y, "Recepcionado por:")
+    c.line(500, y, 580, y)
 
     c.showPage()
     c.save()
@@ -172,5 +174,82 @@ with st.expander("📂 Ver historial de reportes"):
     if os.path.exists("historial_reportes.csv"):
         historial = pd.read_csv("historial_reportes.csv")
         st.dataframe(historial)
+
+        st.markdown("---")
+        selected_index = st.number_input("Selecciona el número de fila para reimprimir (0 a N-1):", min_value=0, max_value=len(historial)-1, step=1)
+        if st.button("🖨️ Generar PDF del reporte seleccionado"):
+            datos = historial.iloc[selected_index].to_dict()
+
+            timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+            pdf_filename = f"reporte_servicio_{timestamp}_reimpreso.pdf"
+            c = canvas.Canvas(pdf_filename, pagesize=letter)
+            c.setStrokeGray(0.7)
+            c.setLineWidth(1)
+            c.rect(25, 25, 560, 740, stroke=1, fill=0)  # marco decorativo
+            c.setFont("Helvetica-Bold", 14)
+            c.drawString(200, 770, "REPORTE DE SERVICIO")
+            c.setFont("Helvetica", 10)
+            y = 740
+
+            def draw_field(canvas, label, value, y_pos):
+                canvas.drawString(40, y_pos, f"{label}:")
+                canvas.line(140, y_pos - 2, 580, y_pos - 2)
+                canvas.drawString(150, y_pos, str(value))
+                return y_pos - 20
+
+            def draw_section_title(canvas, title, y_pos):
+                canvas.setFillGray(0.9)
+                canvas.rect(30, y_pos - 2, 550, 18, fill=1, stroke=0)
+                canvas.setFillColorRGB(0, 0, 0)
+                canvas.setFont("Helvetica-Bold", 12)
+                canvas.drawString(40, y_pos, title)
+                return y_pos - 20
+
+            y = draw_section_title(c, "Datos del Cliente", y)
+            c.setFont("Helvetica", 10)
+            for campo in ["Cliente", "Dirección", "Contacto", "Técnico"]:
+                c.setStrokeGray(0.85)
+                c.setLineWidth(0.3)
+                y = draw_field(c, campo, datos[campo], y)
+
+            y = draw_section_title(c, "Tiempos del Servicio", y)
+            for campo in ["Fecha llamado", "Hora llamado", "Fecha servicio", "Hora inicio"]:
+                y = draw_field(c, campo, datos[campo], y)
+
+            y = draw_section_title(c, "Datos del Equipo", y)
+            for campo in ["Modelo", "Versión", "Serie", "Horas uso"]:
+                y = draw_field(c, campo, datos[campo], y)
+
+            y = draw_section_title(c, "Detalle del Problema", y)
+            for campo in ["Problema", "Falla", "Acciones", "Comentarios"]:
+                c.setFont("Helvetica-Bold", 10)
+                c.setFillGray(0.9)
+                c.rect(30, y - 3, 550, 16, fill=1, stroke=0)
+                c.setFillColorRGB(0, 0, 0)
+                c.drawString(40, y, f"{campo}:")
+                y -= 20
+
+                text_lines = str(datos[campo]).splitlines()
+                c.setFont("Helvetica", 10)
+                for line in text_lines:
+                    c.drawString(60, y, line.strip())
+                    y -= 13
+                y -= 10
+
+            y = 60
+            c.setFont("Helvetica", 10)
+            c.drawString(50, y, "Realizado por:")
+            c.line(130, y, 250, y)
+            c.drawString(400, y, "Recepcionado por:")
+            c.line(500, y, 580, y)
+
+            c.showPage()
+            c.save()
+
+            with open(pdf_filename, "rb") as f:
+                pdf_bytes = f.read()
+                b64 = base64.b64encode(pdf_bytes).decode()
+                href = f'<a href="data:application/pdf;base64,{b64}" download="{pdf_filename}">📥 Descargar PDF del historial</a>'
+                st.markdown(href, unsafe_allow_html=True)
     else:
         st.info("Aún no hay reportes guardados.")
