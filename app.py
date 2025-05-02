@@ -60,52 +60,52 @@ if submitted:
     csv_path = "historial_reportes.csv"
     df.to_csv(csv_path, mode='a', header=not os.path.exists(csv_path), index=False)
 
-    # Generar PDF (estilo estructurado)
+      # Generar PDF (estilo estructurado, sin usar nonlocal)
     timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
     pdf_filename = f"reporte_servicio_{timestamp}.pdf"
     c = canvas.Canvas(pdf_filename, pagesize=letter)
+
     c.setFont("Helvetica-Bold", 14)
     c.drawString(200, 770, "REPORTE DE SERVICIO")
 
     c.setFont("Helvetica", 10)
 
-    y = 740
-    def draw_field(label, value):
-        nonlocal y
-        c.drawString(40, y, f"{label}:")
-        c.drawString(150, y, str(value))
-        y -= 18
+    y = 740  # altura inicial
+
+    def draw_field(c, label, value, y_pos):
+        c.drawString(40, y_pos, f"{label}:")
+        c.drawString(150, y_pos, str(value))
+        return y_pos - 18
 
     # Sección 1 - Datos generales
-    y -= 10
     c.setFont("Helvetica-Bold", 12)
     c.drawString(40, y, "Datos del Cliente")
     y -= 15
     c.setFont("Helvetica", 10)
-    draw_field("Cliente", datos["Cliente"])
-    draw_field("Dirección", datos["Dirección"])
-    draw_field("Contacto", datos["Contacto"])
-    draw_field("Técnico Encargado", datos["Técnico"])
+    y = draw_field(c, "Cliente", datos["Cliente"], y)
+    y = draw_field(c, "Dirección", datos["Dirección"], y)
+    y = draw_field(c, "Contacto", datos["Contacto"], y)
+    y = draw_field(c, "Técnico Encargado", datos["Técnico"], y)
 
     y -= 10
     c.setFont("Helvetica-Bold", 12)
     c.drawString(40, y, "Tiempos del Servicio")
     y -= 15
     c.setFont("Helvetica", 10)
-    draw_field("Fecha llamado", datos["Fecha llamado"])
-    draw_field("Hora llamado", datos["Hora llamado"])
-    draw_field("Fecha servicio", datos["Fecha servicio"])
-    draw_field("Hora inicio", datos["Hora inicio"])
+    y = draw_field(c, "Fecha llamado", datos["Fecha llamado"], y)
+    y = draw_field(c, "Hora llamado", datos["Hora llamado"], y)
+    y = draw_field(c, "Fecha servicio", datos["Fecha servicio"], y)
+    y = draw_field(c, "Hora inicio", datos["Hora inicio"], y)
 
     y -= 10
     c.setFont("Helvetica-Bold", 12)
     c.drawString(40, y, "Datos del Equipo")
     y -= 15
     c.setFont("Helvetica", 10)
-    draw_field("Modelo", datos["Modelo"])
-    draw_field("Versión", datos["Versión"])
-    draw_field("Serie", datos["Serie"])
-    draw_field("Horas uso", datos["Horas uso"])
+    y = draw_field(c, "Modelo", datos["Modelo"], y)
+    y = draw_field(c, "Versión", datos["Versión"], y)
+    y = draw_field(c, "Serie", datos["Serie"], y)
+    y = draw_field(c, "Horas uso", datos["Horas uso"], y)
 
     # Sección grande (multilínea)
     y -= 10
@@ -113,13 +113,13 @@ if submitted:
     c.drawString(40, y, "Detalle del Problema")
     y -= 15
     c.setFont("Helvetica", 10)
-    text_fields = ["Problema", "Falla", "Acciones", "Comentarios"]
-    for field in text_fields:
-        c.drawString(40, y, f"{field}:")
+
+    for campo in ["Problema", "Falla", "Acciones", "Comentarios"]:
+        c.drawString(40, y, f"{campo}:")
         y -= 15
-        text = datos[field]
-        for line in text.splitlines():
-            c.drawString(60, y, line.strip())
+        texto = datos[campo]
+        for linea in texto.splitlines():
+            c.drawString(60, y, linea.strip())
             y -= 13
         y -= 10
 
